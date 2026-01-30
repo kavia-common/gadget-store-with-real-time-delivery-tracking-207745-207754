@@ -1,9 +1,12 @@
 const express = require('express');
 const healthController = require('../controllers/health');
+const productsRoutes = require('./products');
+const cartRoutes = require('./cart');
+const ordersRoutes = require('./orders');
 
 const router = express.Router();
-// Health endpoint
 
+// Health endpoint
 /**
  * @swagger
  * /:
@@ -31,5 +34,10 @@ const router = express.Router();
  *                   example: development
  */
 router.get('/', healthController.check.bind(healthController));
+
+// Domain routes
+router.use('/products', productsRoutes);
+router.use('/cart', cartRoutes);
+router.use('/', ordersRoutes);
 
 module.exports = router;
