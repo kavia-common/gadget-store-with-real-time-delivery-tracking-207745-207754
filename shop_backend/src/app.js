@@ -14,7 +14,18 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '*')
   .filter(Boolean);
 
 app.use(cors({
-  origin: allowedOrigins.includes('*') ? '*' : allowedOrigins,
+  origin: (origin, callback) => {
+    // Allow non-browser requests (no Origin header) and same-origin.
+    if (!origin) return callback(null, true);
+
+    // Preserve wildcard behavior.
+    if (allowedOrigins.includes('*')) return callback(null, true);
+
+    // Explicit allow-list.
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    return callback(new Error(`CORS origin not allowed: ${origin}`));
+  },
   methods: (process.env.ALLOWED_METHODS || 'GET,POST,PUT,DELETE,PATCH,OPTIONS').split(','),
   allowedHeaders: (process.env.ALLOWED_HEADERS || 'Content-Type,Authorization').split(','),
   maxAge: process.env.CORS_MAX_AGE ? Number(process.env.CORS_MAX_AGE) : undefined,
